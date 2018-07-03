@@ -1,0 +1,16 @@
+{
+    "users": [
+        {
+            "id": "71264d20-75eb-11e8-a767-33be27ef74d0",
+            "name": "priyank",
+            "email": "pri@abc.com",
+            "phone": "9323969098"
+        },
+        {
+            "id": "28cdd5b0-75ec-11e8-b03c-2beea641d2aa",
+            "name": "deepika",
+            "email": "pri@abc.com",
+            "phone": "9323969098"
+        }
+    ]
+}

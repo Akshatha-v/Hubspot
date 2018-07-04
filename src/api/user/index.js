@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { middleware as query } from 'querymen'
-import { create, index, show, update, destroy } from './controller'
+import { create, index, show, update, destroy, fetchGrpContacts, fetchContactByEmail,contactupdate,contactdelete } from './controller'
 
 const router = new Router()
 
@@ -59,8 +59,16 @@ router.put('/:id',
 router.delete('/:id',
   destroy)
 
-  router.get('/all'
+router.post('/groupcontacts',
+  fetchGrpContacts)
 
-  )
+router.get('/by/email/:id',
+  fetchContactByEmail)
+
+  router.put('/contact/update',
+contactupdate)
+
+router.delete('/contact/delete',
+contactdelete)
 
 export default router

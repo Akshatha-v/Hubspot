@@ -109,13 +109,23 @@ export const index = (req, res, next) => {
   //     else res.status(400);
   //   })
   //   console.log("Didn't wait for read to complete");
+  Model.Contact_Hubspot_Response.findAll({
+    attributes: ['Response_ID', 'User_ID', 'Hubspot_VID', 'Response_JSON']
+  })
+    .then((Contact_resp) => {
+      Hubspot.httpRequest('GET', 'https://api.hubapi.com/contacts/v1/lists/all/contacts/all?hapikey=demo&count=2', null)
+        .then((Hubspot_resp) => {
+          console.log('Response Contact', Hubspot_resp);
+          res.status(200).json(JSON.parse(Hubspot_resp)).end();
+        }).catch((err) => {
+          res.status(400).end();
+        }
+        )
 
-
-
-
-
-
-
+    })
+    .catch((err) => {
+      res.status(400).end();
+    })
 }
 
 
@@ -140,7 +150,7 @@ export const show = (req, res, next) => {
   })
     .then((contact_resp) => {
       if (contact_resp) {
-        Hubspot.httpRequest('GET', 'https://api.hubapi.com/contacts/v1/contact/vid/'+ contact_resp.Hubspot_VID + '/profile?hapikey=demo', null)
+        Hubspot.httpRequest('GET', 'https://api.hubapi.com/contacts/v1/contact/vid/' + contact_resp.Hubspot_VID + '/profile?hapikey=demo', null)
           .then((hubspotResp) => {
             console.log("hubspotResp", hubspotResp);
             res.status(200).json(JSON.parse(hubspotResp)).end();
@@ -287,9 +297,73 @@ function constructContactBody(contact) {
 
 }
 
+//export const options = (req, res, next) => {
+//   Model.Contact_Hubspot_Response.findAll()
+//   .then((allcontacts)=>
+// {
+//   console.log('All contacts',allcontacts);
+//   res.status(200).json(JSON.parse(allcontacts)).end();
+// })
+// .catch((err)=>{
+//   res.status(400).end();
+// })
+
+//}
 
 
+export const fetchGrpContacts = function (req, res, next) {
+  Model.Contact_Hubspot_Response.findAll({
+    where: { User_ID: req.body.users },
+    raw: true
+  })
+    .then((Contact_Resp) => {
+      console.log("Contact_resp", Contact_Resp);
+      var batchVIDStr = ''
+      Contact_Resp.forEach((contctResp, index) => {
+        if (contctResp.Hubspot_VID) {
+          if (index > 0) batchVIDStr = batchVIDStr + '&vid=' + contctResp.Hubspot_VID;
+          else batchVIDStr = batchVIDStr + 'vid=' + contctResp.Hubspot_VID;
+        }
+      })
+      console.log("batchVIDStr", batchVIDStr);
+      Hubspot.httpRequest('GET', 'https://api.hubapi.com/contacts/v1/contact/vids/batch/?' + batchVIDStr + '&hapikey=demo', null)
+        .then((Hubspot_Resp) => {
+          console.log("Hubspot Response".Hubspot_Resp);
+          res.status(200).json(JSON.parse(Hubspot_Resp)).end();
+        }).catch((err) => {
+          res.status(400).end();
+        })
+    }).catch((err) => {
+      res.status(400).end();
+    })
+}
 
+
+export const fetchContactByEmail = function (req, res, next) {
+  Model.Contacts.find({
+    where: { User_ID: req.params.id }
+  })
+    .then((Contact_Resp) => {
+      Hubspot.httpRequest('GET', 'https://api.hubapi.com/contacts/v1/contact/email/'+ Contact_Resp.User_Email +'/profile?hapikey=demo', null)
+        .then((Hubspot_Resp) => {
+          //console.log("Hubspot Response".Hubspot_Resp);
+          res.status(200).json(JSON.parse(Hubspot_Resp)).end();
+        }).catch((err) => {
+          res.status(400).end();
+        })
+    }).catch((err) => {
+      res.status(400).end();
+    })
+}
+
+export const contactupdate= function (req, res, next){
+
+}
+
+export const contactdelete= function (req, res, next){
+
+
+}
 
 
 
